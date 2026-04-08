@@ -15,10 +15,10 @@ jobs:
         name: Unit Testing
         strategy:
           matrix:
-            nodejs_version: [19, 20, 21]
+            nodejs_version: [21, 22]
             operating_system: [ubuntu-latest, macos-latest]
             exclude:
-              - nodejs_version: 19
+              - nodejs_version: 21
                 operating_system: macos-latest
         runs-on: ${{ matrix.operating_system }}
         steps:
@@ -34,9 +34,11 @@ jobs:
           run: npm install
     
         - name: Unit Testing
+          id: unit-testing-for-nodejs
           run: npm test
           
         - name: Archive Test Result
+          if: steps.unit-testing-for-nodejs.outcome == 'failure' || steps.unit-testing-for-nodejs.outcome == 'success'
           uses: actions/upload-artifact@v4
           with:
             name: Mocha-Test-Result-${{ matrix.operating_system }}-${{ matrix.nodejs_version }}
@@ -48,7 +50,7 @@ jobs:
       steps:
         - name: checkout Repository
           uses: actions/checkout@v6
-        - name: Setup NodeJS Version - 20
+        - name: Setup NodeJS Version - 22
           uses: actions/setup-node@v6
 
         - name: Install Dependencies
